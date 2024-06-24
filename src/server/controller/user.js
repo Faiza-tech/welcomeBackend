@@ -49,6 +49,8 @@ const logIn = async (req, res) => {
   if (!passwordsMatch) {
     return res.status(401).json({ error: "Invalid email or password." });
   } else {
+    console.log("this is founduser",foundUser)
+
     const payload = { sub: foundUser.id };
 
     const createToken = (payload, secret) => {
@@ -57,7 +59,7 @@ const logIn = async (req, res) => {
     };
 
     const token = createToken(payload, secret);
-    res.json({ data: token , id: foundUser.id});
+    res.json({ token , id: foundUser.id , userName: foundUser.username });
 
     //console.log(token);
   }
