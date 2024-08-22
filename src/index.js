@@ -11,8 +11,8 @@ app.disable('x-powered-by');
 //app.use(cors());
 // CORS configuration
 const corsOptions = {
-   origin: 'https://welcomeabroad.netlify.app', // Replace with your Netlify site URL
-   //origin: '*',
+   //origin: 'https://welcomeabroad.netlify.app', // Replace with your Netlify site URL
+   origin: '*',
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 };
