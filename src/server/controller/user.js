@@ -12,16 +12,19 @@ const secret = process.env.secret;
 const signUp = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-   // console.log("this is the body:",req.body)
+     // console.log("this is the body:",req.body)
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
     const hashedPassword = await bcrypt.hash(password, 12);
     const createdUser = await prisma.user.create({
       data: {
-       username,
+        username,
         email,
         password: hashedPassword,
       },
     });
-   // console.log("this is the created user:", createdUser);
+       // console.log("this is the created user:", createdUser);
     res.status(201).json({ data: createdUser });
   } catch (error) {
     console.error("Error during registration:", error.message);
@@ -29,11 +32,14 @@ const signUp = async (req, res) => {
   }
 };
 
+
 const logIn = async (req, res) => {
   const { email, password } = req.body;
- if(!email || !password) {
-  return res.status(401).json({error: "field missing"})
- }
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
   const foundUser = await prisma.user.findUnique({
     where: {
       email: email,
@@ -41,28 +47,20 @@ const logIn = async (req, res) => {
   });
 
   if (!foundUser) {
-    return res.status(401).json({ error: "Invalid email or password." });
+    return res.status(401).json({ error: 'Invalid email or password' });
   }
 
   const passwordsMatch = await bcrypt.compare(password, foundUser.password);
 
   if (!passwordsMatch) {
-    return res.status(401).json({ error: "Invalid email or password." });
-  } else {
-    console.log("this is founduser",foundUser)
-
-    const payload = { sub: foundUser.id };
-
-    const createToken = (payload, secret) => {
-      const token = jwt.sign(payload, secret);
-      return token;
-    };
-
-    const token = createToken(payload, secret);
-    res.json({ token , id: foundUser.id , userName: foundUser.username });
-
-    //console.log(token);
+    return res.status(401).json({ error: 'Invalid email or password' });
   }
+
+  const payload = { sub: foundUser.id };
+  const token = jwt.sign(payload, process.env.SECRET);
+
+  res.json({ token, id: foundUser.id, userName: foundUser.username });
 };
+
 
 export { signUp, logIn };
